@@ -1,0 +1,71 @@
+{
+    //maintained for backward compatibility
+    "driver": "file",
+    "connection": "examples/rbac_policy.csv",
+    "enforcer": "examples/rbac_model.conf",
+    //new sections
+    "enforcers": [
+        {
+            "title": "enforcer1",
+            "connection": {
+                "driver": "file",
+                "connectionString": "examples/rbac_model.conf"
+            },
+            "adapter": "adapterMain",
+            "buildOnStartUp":"true"
+        }
+    ],
+    "adapters": [
+        {
+            "title": "adapterMain",
+            "connection": {
+                "driver": "file",
+                "connectionString": "examples/rbac_policy.csv"
+            },
+            "filterClause":""
+        }
+    ],
+    "authentication": {
+        "required": "true",
+        "headerName": "Authorization",
+        "schema": "bearer",
+        "providers": [
+            {
+                "title": "Default Values Example",
+                "type": "JWKS",
+                //Issuer validation configs
+                "validateIssuer": "true",
+                "issuerClaimTitle": "iss",
+                "issuer": "providerA",
+                //Audience validation configs
+                "validateAudience": "true",
+                "audienceClaimTitle": "aud",
+                "audiences": [
+                    "abc",
+                    "xpto"
+                ],
+                //Subject validation configs
+                "subjectClaimTitle": "sub",
+                //Token validity and expiration validation configs
+                "validateNotBefore": "true",
+                "NotBeforeClaimTitle": "nbf",
+                "validateExpiration": "true",
+                "expirationClaimTitle": "exp",
+                //The provider well known uri. Can be a file path
+                "validateSignatureAgainst": "https://myProvider.com/oauth2/.well-known/jwks.json"
+            },
+            {
+                "title": "file cert",
+                "type": "file",
+                //DO NOT USE files containing both keys. The lack of "import password" is intentional.
+                //casbin-server is not meant to sign JWTs so private key is not necessary
+                "validateSignatureAgainst": "/etc/ssl/certs/myCert.cer"
+            },
+            {
+                "title": "static token provider",
+                "type": "secrets",
+                "validateSignatureAgainst": "ValidTokens OfArbitrary LengthSeparated ByEspaces"
+            }
+        ]
+    }
+}
